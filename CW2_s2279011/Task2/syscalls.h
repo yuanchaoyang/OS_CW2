@@ -822,6 +822,7 @@ asmlinkage long sys_remap_file_pages(unsigned long start, unsigned long size,
 			unsigned long prot, unsigned long pgoff,
 			unsigned long flags);
 asmlinkage long sys_mseal(unsigned long start, size_t len, unsigned long flags);
+asmlinkage long sys_va_space_stat(pid_t pid, struct addr_space_info __user *info);
 asmlinkage long sys_mbind(unsigned long start, unsigned long len,
 				unsigned long mode,
 				const unsigned long __user *nmask,
