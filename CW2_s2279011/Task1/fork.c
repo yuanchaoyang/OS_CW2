@@ -2319,6 +2319,16 @@ __latent_entropy struct task_struct *copy_process(
 	posix_cputimers_init(&p->posix_cputimers);
 	tick_dep_init_task(p);
 
+	/* Zero memory operation counters for child */
+	atomic_long_set(&p->mmap_count, 0);
+	atomic_long_set(&p->mmap_bytes, 0);
+	atomic_long_set(&p->munmap_count, 0);
+	atomic_long_set(&p->munmap_bytes, 0);
+	atomic_long_set(&p->mprotect_count, 0);
+	atomic_long_set(&p->mprotect_bytes, 0);
+	atomic_long_set(&p->brk_count, 0);
+	atomic_long_set(&p->brk_bytes, 0);
+
 	p->io_context = NULL;
 	audit_set_context(p, NULL);
 	cgroup_fork(p);

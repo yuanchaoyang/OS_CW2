@@ -856,7 +856,13 @@ out:
 SYSCALL_DEFINE3(mprotect, unsigned long, start, size_t, len,
 		unsigned long, prot)
 {
-	return do_mprotect_pkey(start, len, prot, -1);
+	long ret = do_mprotect_pkey(start, len, prot, -1);
+
+	if (ret == 0) {
+		atomic_long_inc(&current->mprotect_count);
+		atomic_long_add(len, &current->mprotect_bytes);
+	}
+	return ret;
 }
 
 #ifdef CONFIG_ARCH_HAS_PKEYS

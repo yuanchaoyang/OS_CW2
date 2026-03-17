@@ -3303,6 +3303,24 @@ static int proc_stack_depth(struct seq_file *m, struct pid_namespace *ns,
 }
 #endif /* CONFIG_STACKLEAK_METRICS */
 
+static int proc_pid_mem_ops(struct seq_file *m, struct pid_namespace *ns,
+			    struct pid *pid, struct task_struct *task)
+{
+	seq_printf(m, "mmap %ld %ld\n",
+		   atomic_long_read(&task->mmap_count),
+		   atomic_long_read(&task->mmap_bytes));
+	seq_printf(m, "munmap %ld %ld\n",
+		   atomic_long_read(&task->munmap_count),
+		   atomic_long_read(&task->munmap_bytes));
+	seq_printf(m, "mprotect %ld %ld\n",
+		   atomic_long_read(&task->mprotect_count),
+		   atomic_long_read(&task->mprotect_bytes));
+	seq_printf(m, "brk %ld %ld\n",
+		   atomic_long_read(&task->brk_count),
+		   atomic_long_read(&task->brk_bytes));
+	return 0;
+}
+
 /*
  * Thread groups
  */
@@ -3339,6 +3357,7 @@ static const struct pid_entry tgid_base_stuff[] = {
 	REG("cmdline",    S_IRUGO, proc_pid_cmdline_ops),
 	ONE("stat",       S_IRUGO, proc_tgid_stat),
 	ONE("statm",      S_IRUGO, proc_pid_statm),
+	ONE("mem_ops",    S_IRUGO, proc_pid_mem_ops),
 	REG("maps",       S_IRUGO, proc_pid_maps_operations),
 #ifdef CONFIG_NUMA
 	REG("numa_maps",  S_IRUGO, proc_pid_numa_maps_operations),

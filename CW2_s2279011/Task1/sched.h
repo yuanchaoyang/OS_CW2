@@ -1600,6 +1600,16 @@ struct task_struct {
 	struct user_event_mm		*user_event_mm;
 #endif
 
+	/* Per-process memory operation counters */
+	atomic_long_t mmap_count;
+	atomic_long_t mmap_bytes;
+	atomic_long_t munmap_count;
+	atomic_long_t munmap_bytes;
+	atomic_long_t mprotect_count;
+	atomic_long_t mprotect_bytes;
+	atomic_long_t brk_count;
+	atomic_long_t brk_bytes;
+
 	/*
 	 * New fields for task_struct should be added above here, so that
 	 * they are included in the randomized portion of task_struct.

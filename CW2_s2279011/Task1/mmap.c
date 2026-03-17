@@ -208,6 +208,11 @@ success_unlocked:
 	userfaultfd_unmap_complete(mm, &uf);
 	if (populate)
 		mm_populate(oldbrk, newbrk - oldbrk);
+	if (brk != origbrk) {
+		atomic_long_inc(&current->brk_count);
+		atomic_long_add(brk > origbrk ? brk - origbrk : origbrk - brk,
+				&current->brk_bytes);
+	}
 	return brk;
 
 out:
@@ -544,6 +549,10 @@ unsigned long ksys_mmap_pgoff(unsigned long addr, unsigned long len,
 	}
 
 	retval = vm_mmap_pgoff(file, addr, len, prot, flags, pgoff);
+	if (!IS_ERR_VALUE(retval)) {
+		atomic_long_inc(&current->mmap_count);
+		atomic_long_add(len, &current->mmap_bytes);
+	}
 out_fput:
 	if (file)
 		fput(file);
@@ -1652,8 +1661,15 @@ EXPORT_SYMBOL(vm_munmap);
 
 SYSCALL_DEFINE2(munmap, unsigned long, addr, size_t, len)
 {
+	int ret;
+
 	addr = untagged_addr(addr);
-	return __vm_munmap(addr, len, true);
+	ret = __vm_munmap(addr, len, true);
+	if (ret == 0) {
+		atomic_long_inc(&current->munmap_count);
+		atomic_long_add(len, &current->munmap_bytes);
+	}
+	return ret;
 }
 
 
